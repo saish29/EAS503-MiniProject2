@@ -41,21 +41,98 @@ def execute_sql_statement(sql_statement, conn):
 
     return rows
 
+def execute_many_insert(sql_statement, values, conn):
+    cur = conn.cursor()
+    cur.executemany(sql_statement, values)
+    conn.commit()
+    
+    return cur.lastrowid
+
+
 def step1_create_region_table(data_filename, normalized_database_filename):
     # Inputs: Name of the data and normalized database filename
     # Output: None
     
     ### BEGIN SOLUTION
-    pass
+    conn = create_connection(normalized_database_filename)
+    query = "Create table If not exists Region  (RegionID Integer not null primary key, Region Text not null)"
+    create_table(conn, query)
+    
+    with open(data_filename) as f:
+        ls = f.readlines()
+        regions = set()
+        for i, line in enumerate(ls):
+            if(i == 0):
+                continue
+            cols = line.split('\t')
+            regions.add(cols[4])
+    regions = list(regions)
+    regions.sort()
+    
+    data = [(index+1, x) for index, x in enumerate(regions)]
+    insert_query = "INSERT INTO Region VALUES (?,?)"
+    # print(data)
+    execute_many_insert(insert_query, data, conn)
+    conn.close()
     ### END SOLUTION
+
+def reg_dict_creation(rline):
+    rdict = {}
+    for line in rline:
+        rdict[line[1]] = line[0]
+    return rdict
 
 def step2_create_region_to_regionid_dictionary(normalized_database_filename):
     
     
     ### BEGIN SOLUTION
-    pass
+    con = create_connection(normalized_database_filename)
+    #reg_region = "Select * Region"
+    reg_req = "Select * from Region"
+    reg_ls = execute_sql_statement(reg_req, con)
+    reg_dict = reg_dict_creation(reg_ls)
+    
+    return reg_dict
 
     ### END SOLUTION
+
+def create_country_dict(line):
+    cdict = {}
+    i = 1
+    
+    while i < len(line):
+        llist= line[i].split("\t")
+        reg = llist[4]
+        ct = llist[3]
+        
+        if ct not in cdict.keys():
+            cdict[ct]=reg
+        i = i + 1
+    
+    fdict = dict(sorted(cdict.items(), key =lambda x:(x[0])))
+    
+    return fdict
+    
+def create_country_list(cdict,rdict):
+    flist = []
+    id = 1
+    
+    for k, v in cdict.items():
+        
+        if v in rdict.keys():
+            flist.append([id, k, rdict[v]])
+        else:
+            pass
+        
+        id = id + 1
+    
+    return flist
+    
+def create_country_table(con,create,insert,flist):
+    with con:
+        create_table(con,create)
+        cur = con.cursor()
+        cur.executemany(insert, flist)
 
 
 def step3_create_country_table(data_filename, normalized_database_filename):
@@ -64,16 +141,43 @@ def step3_create_country_table(data_filename, normalized_database_filename):
     
     ### BEGIN SOLUTION
     
-    pass
+    with open(data_filename, "r") as file:
+        lines = file.readlines()
+        
+        ct_dict = create_country_dict(lines)
+        reg_dict = step2_create_region_to_regionid_dictionary(normalized_database_filename)
+        
+        ct_list = create_country_list(ct_dict,reg_dict)
+
+    create_sql = "CREATE TABLE COUNTRY ( [CountryID] integer not null Primary key, [Country] Text not null,[RegionID] integer not null,FOREIGN KEY(RegionID) REFERENCES REGION(RegionID));"
+    insert_sql = "INSERT INTO COUNTRY VALUES (?,?,?);"
+
+    conn = create_connection(normalized_database_filename)
+
+    create_country_table(conn,create_sql,insert_sql,ct_list)
+    
          
     ### END SOLUTION
+
+def create_countryid_dict(r):
+    cdict = {}
+    
+    for ele in r:
+        cdict[ele[1]] = ele[0] 
+    
+    return cdict
 
 
 def step4_create_country_to_countryid_dictionary(normalized_database_filename):
     
     
     ### BEGIN SOLUTION
-    pass
+    conn = create_connection(normalized_database_filename)
+    country_sql = "Select * from COUNTRY"
+    lines = execute_sql_statement(country_sql, conn)
+    ct_dict = create_countryid_dict(lines)
+        
+    return ct_dict
 
     ### END SOLUTION
         
