@@ -186,7 +186,41 @@ def step5_create_customer_table(data_filename, normalized_database_filename):
 
     ### BEGIN SOLUTION
     
-    pass
+    conn = create_connection(normalized_database_filename)
+    
+    query = '''Create table If not exists Customer  (
+                CustomerID integer not null Primary Key, 
+                FirstName Text not null,
+                LastName Text not null,
+                Address Text not null,
+                City Text not null,
+                CountryID integer not null,
+                FOREIGN KEY(CountryID) REFERENCES Country(CountryID)
+                )'''
+    
+    create_table(conn, query)
+    country_up = step4_create_country_to_countryid_dictionary(normalized_database_filename)
+    data = []
+    
+    with open(data_filename) as fp:
+        lines = fp.readlines()
+        #cmb = {}
+        
+        for a, line in enumerate(lines):
+            if a==0:
+                continue
+            arr = line.split('\t')
+            data.append((arr[0].split()[0],' '.join(arr[0].split()[1:]),arr[1],arr[2],country_up[arr[3]]))
+    
+    data.sort(key=lambda x:x[0]+x[1])
+    arr = [ ]
+    
+    for b,c in enumerate(data):
+        arr.append((b+1,*c))
+    
+    insert_query = "INSERT INTO Customer VALUES (?,?,?,?,?,?)"
+    
+    execute_many_insert(insert_query, arr, conn)
 
     ### END SOLUTION
 
