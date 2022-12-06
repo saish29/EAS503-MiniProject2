@@ -224,15 +224,62 @@ def step5_create_customer_table(data_filename, normalized_database_filename):
 
     ### END SOLUTION
 
+def create_tocustid_dict(line):
+    cdict = {}
+    
+    for ele in line:
+        cdict[ele[0]] = ele[1]
+    
+    return cdict
+
 
 def step6_create_customer_to_customerid_dictionary(normalized_database_filename):
     
     
     ### BEGIN SOLUTION
-    pass
+    conn = create_connection(normalized_database_filename)
+    cust_sql = "Select FirstName || ' ' || LastName AS fullname, CustomerID from customer"
+    ln = execute_sql_statement(cust_sql, conn)  
+    cust_dict = create_tocustid_dict(ln)
+    
+    return cust_dict
 
     ### END SOLUTION
         
+def create_primary_prodcat_list(line,prodid):
+    i = 1
+    klist = []
+    flist = []
+    
+    while i<len(line):
+        llist= line[i].split("\t")
+        prodCatDesp = llist[7]
+        prodCat = llist[6]
+        
+        for cat, desp in zip(prodCat.split(';'), prodCatDesp.split(';')):
+            
+            if cat not in klist:
+                flist.append([prodid,cat,desp])
+                klist.append(cat)      
+            else:
+                pass
+        i = i+1
+    flist = sorted(flist, key=lambda k: (k[1]))
+    return flist
+
+def create_final_prodcat_list(flist,prodid):
+    for ele in flist:
+        ele[0] = prodid
+        prodid = prodid + 1
+    return flist
+
+def create_prodcat_table(con,flist,create,insert):
+    with con:
+        create_table(con,create)
+        cur = con.cursor()
+        cur.executemany(insert, flist)
+
+
 def step7_create_productcategory_table(data_filename, normalized_database_filename):
     # Inputs: Name of the data and normalized database filename
     # Output: None
