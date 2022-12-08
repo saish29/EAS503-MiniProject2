@@ -309,8 +309,20 @@ def step8_create_productcategory_to_productcategoryid_dictionary(normalized_data
     
     
     ### BEGIN SOLUTION
-    pass
+    
+    conn = create_connection(normalized_database_filename)
+    prodcat_id = "Select ProductCategory,ProductCategoryID from ProductCategory"
+    lines = execute_sql_statement(prodcat_id, conn)
+    #prodcat_dict = create_prodcatid_dict(lines)
+    #return prodcat_dict
 
+    pid = {}
+    
+    for line in lines:
+        pid[line[0]] = line[1]
+    
+    return pid
+    
     ### END SOLUTION
         
 
