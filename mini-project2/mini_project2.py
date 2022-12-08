@@ -61,73 +61,45 @@ def step1_create_region_table(data_filename, normalized_database_filename):
     with open(data_filename) as f:
         ls = f.readlines()
         regions = set()
+        
         for i, line in enumerate(ls):
-            if(i == 0):
+            
+            if i == 0:
                 continue
+            
             cols = line.split('\t')
             regions.add(cols[4])
+    
     regions = list(regions)
     regions.sort()
     
-    data = [(index+1, x) for index, x in enumerate(regions)]
-    insert_query = "INSERT INTO Region VALUES (?,?)"
-    # print(data)
-    execute_many_insert(insert_query, data, conn)
+    data = [(i + 1, x) for i, x in enumerate(regions)]
+    
+    region = "INSERT INTO Region VALUES (?,?)"
+    execute_many_insert(region, data, conn)
     conn.close()
+    
     ### END SOLUTION
 
-def reg_dict_creation(rline):
-    rdict = {}
-    for line in rline:
-        rdict[line[1]] = line[0]
-    return rdict
 
 def step2_create_region_to_regionid_dictionary(normalized_database_filename):
     
     
     ### BEGIN SOLUTION
+    dict = {}
+    
     con = create_connection(normalized_database_filename)
-    #reg_region = "Select * Region"
     reg_req = "Select * from Region"
     reg_ls = execute_sql_statement(reg_req, con)
-    reg_dict = reg_dict_creation(reg_ls)
     
-    return reg_dict
+    for l in reg_ls:
+        dict[l[1]] = l[0]
+    
+    return dict
 
     ### END SOLUTION
 
-def create_country_dict(line):
-    cdict = {}
-    i = 1
-    
-    while i < len(line):
-        llist= line[i].split("\t")
-        reg = llist[4]
-        ct = llist[3]
-        
-        if ct not in cdict.keys():
-            cdict[ct]=reg
-        i = i + 1
-    
-    fdict = dict(sorted(cdict.items(), key =lambda x:(x[0])))
-    
-    return fdict
-    
-def create_country_list(cdict,rdict):
-    flist = []
-    id = 1
-    
-    for k, v in cdict.items():
-        
-        if v in rdict.keys():
-            flist.append([id, k, rdict[v]])
-        else:
-            pass
-        
-        id = id + 1
-    
-    return flist
-    
+
 def create_country_table(con,create,insert,flist):
     with con:
         create_table(con,create)
@@ -141,20 +113,50 @@ def step3_create_country_table(data_filename, normalized_database_filename):
     
     ### BEGIN SOLUTION
     
+    
     with open(data_filename, "r") as file:
         lines = file.readlines()
         
-        ct_dict = create_country_dict(lines)
-        reg_dict = step2_create_region_to_regionid_dictionary(normalized_database_filename)
+        # Creating Country Dictionary
         
-        ct_list = create_country_list(ct_dict,reg_dict)
+        country_dict = {}
+        final = []
+        i = 1
+    
+        while i < len(lines):
+            llist = lines[i].split("\t")
+            reg = llist[4]
+            ct = llist[3]
+            
+            if ct not in country_dict.keys():
+                country_dict[ct] = reg
+            i += 1
+        
+        fdict = dict(sorted(country_dict.items(), key = lambda x:(x[0])))
+            
+        # Country List (parsing)
+        
+        rdict = step2_create_region_to_regionid_dictionary(normalized_database_filename)
+        id = 1
+        #rdict = {}
 
-    create_sql = "CREATE TABLE COUNTRY ( [CountryID] integer not null Primary key, [Country] Text not null,[RegionID] integer not null,FOREIGN KEY(RegionID) REFERENCES REGION(RegionID));"
-    insert_sql = "INSERT INTO COUNTRY VALUES (?,?,?);"
+        for k, v in fdict.items():
+        
+            if v in rdict.keys():
+                final.append([id, k, rdict[v]])
+            
+            else:
+                pass
+            
+            id = id + 1
+    
+        #
+    country = "CREATE TABLE COUNTRY ( [CountryID] integer not null Primary key, [Country] Text not null,[RegionID] integer not null,FOREIGN KEY(RegionID) REFERENCES REGION(RegionID));"
+    insert_country = "INSERT INTO COUNTRY VALUES (?,?,?);"
 
     conn = create_connection(normalized_database_filename)
 
-    create_country_table(conn,create_sql,insert_sql,ct_list)
+    create_country_table(conn,country,insert_country,final)
     
          
     ### END SOLUTION
