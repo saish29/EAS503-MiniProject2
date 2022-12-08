@@ -175,11 +175,17 @@ def step4_create_country_to_countryid_dictionary(normalized_database_filename):
     
     ### BEGIN SOLUTION
     conn = create_connection(normalized_database_filename)
-    country_sql = "Select * from COUNTRY"
-    lines = execute_sql_statement(country_sql, conn)
-    ct_dict = create_countryid_dict(lines)
+    country_id = "Select * from COUNTRY"
+    lines = execute_sql_statement(country_id, conn)
+    
+    country_dict ={}
+
+    for l in lines:
+        country_dict[l[1]] = l[0]
+    
+    #ct_dict = create_countryid_dict(lines)
         
-    return ct_dict
+    return country_dict
 
     ### END SOLUTION
         
