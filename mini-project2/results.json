@@ -50,10 +50,9 @@
         },
         {
             "name": "test_step7 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 5,
             "max_score": 5,
-            "status": "failed",
-            "output": "Test Failed: Execution failed on sql 'SELECT * FROM ProductCategory': no such table: ProductCategory\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "step7"
         },
@@ -222,6 +221,6 @@
     ],
     "leaderboard": [],
     "visibility": "visible",
-    "execution_time": "0.69",
-    "score": 30.0
+    "execution_time": "1.06",
+    "score": 35.0
 }

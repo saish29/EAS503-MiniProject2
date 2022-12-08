@@ -239,41 +239,19 @@ def step6_create_customer_to_customerid_dictionary(normalized_database_filename)
     ### BEGIN SOLUTION
     conn = create_connection(normalized_database_filename)
     cust_sql = "Select FirstName || ' ' || LastName AS fullname, CustomerID from customer"
-    ln = execute_sql_statement(cust_sql, conn)  
-    cust_dict = create_tocustid_dict(ln)
+    rows = execute_sql_statement(cust_sql, conn)  
+    
+    cust_dict = {}
+
+    for row in rows:
+        cust_dict[row[0]] = row[1]
     
     return cust_dict
 
     ### END SOLUTION
         
-def create_primary_prodcat_list(line,prodid):
-    i = 1
-    klist = []
-    flist = []
-    
-    while i<len(line):
-        llist= line[i].split("\t")
-        prodCatDesp = llist[7]
-        prodCat = llist[6]
-        
-        for cat, desp in zip(prodCat.split(';'), prodCatDesp.split(';')):
-            
-            if cat not in klist:
-                flist.append([prodid,cat,desp])
-                klist.append(cat)      
-            else:
-                pass
-        i = i+1
-    flist = sorted(flist, key=lambda k: (k[1]))
-    return flist
 
-def create_final_prodcat_list(flist,prodid):
-    for ele in flist:
-        ele[0] = prodid
-        prodid = prodid + 1
-    return flist
-
-def create_prodcat_table(con,flist,create,insert):
+def create_prod_table(con,flist,create,insert):
     with con:
         create_table(con,create)
         cur = con.cursor()
@@ -286,7 +264,44 @@ def step7_create_productcategory_table(data_filename, normalized_database_filena
 
     
     ### BEGIN SOLUTION
-    pass
+    with open("data.csv", "r") as fp:
+        lines = fp.readlines()
+        prod_id = 1
+
+    i = 1
+    temp = []
+    final = []
+    
+    while (i < len(lines)):
+        list = lines[i].split("\t")
+        prodCatDesc = list[7]
+        prodCat = list[6]
+        
+        for cat, desc in zip(prodCat.split(';'), prodCatDesc.split(';')):
+            
+            if cat not in temp:
+                final.append([prod_id,cat,desc])
+                temp.append(cat)      
+            else:
+                pass
+        
+        i += 1
+    
+    final = sorted(final, key = lambda k: (k[1]))
+   
+    for f in final:
+        f[0] = prod_id
+        prod_id += 1
+
+    create_prod = "CREATE TABLE ProductCategory ( [ProductCategoryID] integer not null Primary key, [ProductCategory] Text not null, [ProductCategoryDescription] Text no null);"
+    insert_prod = "INSERT INTO ProductCategory VALUES (?,?,?);"
+
+    conn = create_connection(normalized_database_filename)
+
+    create_prod_table(conn,final,create_prod,insert_prod)
+
+        
+
    
     ### END SOLUTION
 
