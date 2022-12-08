@@ -161,14 +161,6 @@ def step3_create_country_table(data_filename, normalized_database_filename):
          
     ### END SOLUTION
 
-def create_countryid_dict(r):
-    cdict = {}
-    
-    for ele in r:
-        cdict[ele[1]] = ele[0] 
-    
-    return cdict
-
 
 def step4_create_country_to_countryid_dictionary(normalized_database_filename):
     
@@ -182,8 +174,6 @@ def step4_create_country_to_countryid_dictionary(normalized_database_filename):
 
     for l in lines:
         country_dict[l[1]] = l[0]
-    
-    #ct_dict = create_countryid_dict(lines)
         
     return country_dict
 
@@ -196,7 +186,7 @@ def step5_create_customer_table(data_filename, normalized_database_filename):
     
     conn = create_connection(normalized_database_filename)
     
-    query = '''Create table If not exists Customer  (
+    cust = '''Create table If not exists Customer  (
                 CustomerID integer not null Primary Key, 
                 FirstName Text not null,
                 LastName Text not null,
@@ -206,29 +196,31 @@ def step5_create_customer_table(data_filename, normalized_database_filename):
                 FOREIGN KEY(CountryID) REFERENCES Country(CountryID)
                 )'''
     
-    create_table(conn, query)
+    create_table(conn, cust)
     country_up = step4_create_country_to_countryid_dictionary(normalized_database_filename)
     data = []
     
     with open(data_filename) as fp:
         lines = fp.readlines()
-        #cmb = {}
+        
         
         for a, line in enumerate(lines):
-            if a==0:
+            
+            if (a == 0):
                 continue
-            arr = line.split('\t')
-            data.append((arr[0].split()[0],' '.join(arr[0].split()[1:]),arr[1],arr[2],country_up[arr[3]]))
+            
+            split_lines = line.split('\t')
+            data.append((split_lines[0].split()[0],' '.join(split_lines[0].split()[1:]),split_lines[1],split_lines[2],country_up[split_lines[3]]))
     
-    data.sort(key=lambda x:x[0]+x[1])
-    arr = [ ]
+    data.sort(key = lambda x:x[0]+x[1])
+    split_lines = [ ]
     
     for b,c in enumerate(data):
-        arr.append((b+1,*c))
+        split_lines.append((b + 1,*c))
     
-    insert_query = "INSERT INTO Customer VALUES (?,?,?,?,?,?)"
+    insert_cust = "INSERT INTO Customer VALUES (?,?,?,?,?,?)"
     
-    execute_many_insert(insert_query, arr, conn)
+    execute_many_insert(insert_cust, split_lines, conn)
 
     ### END SOLUTION
 
