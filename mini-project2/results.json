@@ -66,19 +66,17 @@
         },
         {
             "name": "test_step9 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 5,
             "max_score": 5,
-            "status": "failed",
-            "output": "Test Failed: Execution failed on sql 'SELECT * FROM Product': no such table: Product\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "step9"
         },
         {
             "name": "test_step_10 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 5,
             "max_score": 5,
-            "status": "failed",
-            "output": "Test Failed: \n",
+            "status": "passed",
             "visibility": "visible",
             "number": "step_10"
         },
@@ -220,6 +218,6 @@
     ],
     "leaderboard": [],
     "visibility": "visible",
-    "execution_time": "1.04",
-    "score": 40.0
+    "execution_time": "1.50",
+    "score": 50.0
 }

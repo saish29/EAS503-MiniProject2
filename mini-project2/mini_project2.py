@@ -325,6 +325,13 @@ def step8_create_productcategory_to_productcategoryid_dictionary(normalized_data
     
     ### END SOLUTION
         
+def create_prodf_table(con,create,insert,plist):
+    with con:
+        create_table(con,create)
+        cur = con.cursor()
+        cur.executemany(insert, plist)
+
+
 
 def step9_create_product_table(data_filename, normalized_database_filename):
     # Inputs: Name of the data and normalized database filename
@@ -333,15 +340,69 @@ def step9_create_product_table(data_filename, normalized_database_filename):
     
     ### BEGIN SOLUTION
     
-    pass
-   
+    with open('data.csv') as fp:
+        lines = fp.readlines()
+    prod_id = 1
+    
+    
+    
+    i = 1
+    temp = []
+    final = []
+    
+    while (i < len(lines)):
+        ele = lines[i].split("\t")  
+        price = ele[8]  # Price 8th
+        cat = ele[6]    # Cat 6th
+        name = ele[5]   # Name 5th
+        product_dict = step8_create_productcategory_to_productcategoryid_dictionary(normalized_database_filename)
+        
+        for p_name,p_price,p_prodcat in zip(name.split(';'), price.split(';'), cat.split(';')):
+            
+            if p_prodcat in product_dict:
+                
+                if p_name not in temp:
+                    
+                    temp.append(p_name)
+                    p_price = str(round((float(p_price)),2))
+                    final.append([prod_id,p_name,p_price, product_dict[p_prodcat]])
+                
+                else:
+                    pass
+            
+            else:
+                pass
+        
+        i += 1
+    final = sorted(final, key = lambda k: (k[1]))
+
+    for f in final:
+        f[0] = prod_id
+        prod_id = prod_id + 1
+    
+    create_prod = "CREATE TABLE Product ([ProductID] integer not null Primary key, [ProductName] Text not null,[ProductUnitPrice] Real not null,[ProductCategoryID] integer not null,FOREIGN KEY(ProductCategoryID) REFERENCES ProductCategory(ProductCategoryID));"
+    insert_prod = "INSERT INTO Product VALUES (?,?,?,?);"
+
+    conn = create_connection(normalized_database_filename)
+
+    create_prodf_table(conn,create_prod,insert_prod,final)
+
+    
     ### END SOLUTION
+
 
 
 def step10_create_product_to_productid_dictionary(normalized_database_filename):
     
     ### BEGIN SOLUTION
-    pass
+    
+    conn = create_connection(normalized_database_filename)
+    prod = "Select ProductID,ProductName from Product"
+    lines = execute_sql_statement(prod, conn)
+    
+    prod = {ele[1]: ele[0] for ele in lines}
+
+    return prod
 
     ### END SOLUTION
         
@@ -352,7 +413,22 @@ def step11_create_orderdetail_table(data_filename, normalized_database_filename)
 
     
     ### BEGIN SOLUTION
-    pass
+    
+    # Create Table
+
+    conn = create_connection(normalized_database_filename)
+    query = '''Create table If not exists OrderDetail  (
+                OrderID integer not null Primary Key, 
+                CustomerID integer not null,
+                ProductID integer not null,
+                OrderDate integer not null,
+                QuantityOrdered integer not null,
+                FOREIGN KEY(CustomerID) REFERENCES Customer(CustomerID),
+                FOREIGN KEY(ProductID) REFERENCES Product(ProductID)
+                )'''
+    create_table(conn, query)
+
+    # Check normalized DB
     ### END SOLUTION
 
 
