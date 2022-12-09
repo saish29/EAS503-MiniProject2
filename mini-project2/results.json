@@ -82,19 +82,17 @@
         },
         {
             "name": "test_step_11_1 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 20,
             "max_score": 20,
-            "status": "failed",
-            "output": "Test Failed: Execution failed on sql 'SELECT * FROM OrderDetail LIMIT 1000': no such table: OrderDetail\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "step_11_1"
         },
         {
             "name": "test_step_11_2 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 20,
             "max_score": 20,
-            "status": "failed",
-            "output": "Test Failed: Execution failed on sql 'SELECT count(*) FROM OrderDetail': no such table: OrderDetail\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "step_11_2"
         },
@@ -103,7 +101,7 @@
             "score": 0.0,
             "max_score": 5,
             "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "output": "Test Failed: Execution failed on sql '\n    \n        SELECT c.FirstName || ' ' || c.LastName AS Name,\n            p.ProductName,\n            o.OrderDate,\n            p.ProductUnitPrice,\n            o.QuantityOrdered,\n            ROUND(p.ProductUnitPrice * o.QuantityOrdered, 2) AS Total\n        FROM OrderDetail o\n        JOIN Customer c ON o.CustomerID = c.CustomerID\n        JOIN Product p ON o.ProductID = p.ProductID\n        WHERE c.CustomerID = :customer_id;\n\n    ': Incorrect number of bindings supplied. The current statement uses 1, and there are 0 supplied.\n",
             "visibility": "visible",
             "number": "z_ex1_1"
         },
@@ -112,7 +110,7 @@
             "score": 0.0,
             "max_score": 5,
             "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "output": "Test Failed: Execution failed on sql '\n    \n        SELECT c.FirstName || ' ' || c.LastName AS Name,\n            p.ProductName,\n            o.OrderDate,\n            p.ProductUnitPrice,\n            o.QuantityOrdered,\n            ROUND(p.ProductUnitPrice * o.QuantityOrdered, 2) AS Total\n        FROM OrderDetail o\n        JOIN Customer c ON o.CustomerID = c.CustomerID\n        JOIN Product p ON o.ProductID = p.ProductID\n        WHERE c.CustomerID = :customer_id;\n\n    ': Incorrect number of bindings supplied. The current statement uses 1, and there are 0 supplied.\n",
             "visibility": "visible",
             "number": "z_ex1_2"
         },
@@ -121,7 +119,7 @@
             "score": 0.0,
             "max_score": 5,
             "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "output": "Test Failed: \n",
             "visibility": "visible",
             "number": "z_ex2_1"
         },
@@ -130,34 +128,31 @@
             "score": 0.0,
             "max_score": 5,
             "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "output": "Test Failed: \n",
             "visibility": "visible",
             "number": "z_ex2_2"
         },
         {
             "name": "test_z_ex3 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 5,
             "max_score": 5,
-            "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "z_ex3"
         },
         {
             "name": "test_z_ex4 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 5,
             "max_score": 5,
-            "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "z_ex4"
         },
         {
             "name": "test_z_ex5 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 5,
             "max_score": 5,
-            "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "z_ex5"
         },
@@ -218,6 +213,6 @@
     ],
     "leaderboard": [],
     "visibility": "visible",
-    "execution_time": "1.50",
-    "score": 50.0
+    "execution_time": "14.05",
+    "score": 105.0
 }

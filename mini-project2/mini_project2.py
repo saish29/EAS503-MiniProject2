@@ -414,6 +414,8 @@ def step11_create_orderdetail_table(data_filename, normalized_database_filename)
     
     ### BEGIN SOLUTION
     
+    from datetime import datetime
+    
     # Create Table
 
     conn = create_connection(normalized_database_filename)
@@ -429,6 +431,39 @@ def step11_create_orderdetail_table(data_filename, normalized_database_filename)
     create_table(conn, query)
 
     # Check normalized DB
+
+    cust_dict = step6_create_customer_to_customerid_dictionary(normalized_database_filename)
+    prod_dict = step10_create_product_to_productid_dictionary(normalized_database_filename)
+    temp = []
+
+    with open(data_filename) as fp:
+        lines = fp.readlines()
+
+        for k, l in enumerate(lines):
+
+            if (k == 0):
+                continue
+
+            count = l.split("\t")
+            productName = count[5].split(";")
+            QuantityOrdered = count[9].split(";")
+            OrderDate = count[10].split(";")
+
+            for ele in zip(productName, QuantityOrdered, OrderDate):
+                date_string = str(ele[2]).strip()
+                date = datetime.strptime(date_string, '%Y%m%d').strftime('%Y-%m-%d')
+                temp.append((cust_dict[count[0]], prod_dict[ele[0]], date, int(ele[1])))
+
+    final = []
+
+    for k,v in enumerate(temp):
+        final.append((k + 1, *v))
+
+    order = "INSERT INTO OrderDetail VALUES (?,?,?,?,?)"
+
+    execute_many_insert(order, final, conn)
+
+
     ### END SOLUTION
 
 
@@ -448,6 +483,17 @@ def ex1(conn, CustomerName):
     ### BEGIN SOLUTION
     sql_statement = """
     
+        SELECT c.FirstName || ' ' || c.LastName AS Name,
+            p.ProductName,
+            o.OrderDate,
+            p.ProductUnitPrice,
+            o.QuantityOrdered,
+            ROUND(p.ProductUnitPrice * o.QuantityOrdered, 2) AS Total
+        FROM OrderDetail o
+        JOIN Customer c ON o.CustomerID = c.CustomerID
+        JOIN Product p ON o.ProductID = p.ProductID
+        WHERE c.CustomerID = :customer_id;
+
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
@@ -465,6 +511,9 @@ def ex2(conn, CustomerName):
     ### BEGIN SOLUTION
     sql_statement = """
     
+    SELECT c.FirstName || "." || c.LastName as Name,round(sum(p.ProductUnitPrice*o.QuantityOrdered),2) as Total from OrderDetail o 
+    JOIN Product p ON o.ProductID=p.ProductID JOIN customer c ON o.CustomerID=c.CustomerID  GROUP BY Name ORDER BY Total desc;
+
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
@@ -481,6 +530,13 @@ def ex3(conn):
     ### BEGIN SOLUTION
     sql_statement = """
     
+    SELECT c.FirstName || ' ' || c.LastName AS Name,
+       ROUND(SUM(p.ProductUnitPrice * o.QuantityOrdered), 2) AS Total
+    FROM OrderDetail o
+    JOIN Customer c ON o.CustomerID = c.CustomerID
+    JOIN Product p ON o.ProductID = p.ProductID
+    GROUP BY c.CustomerID
+    ORDER BY Total DESC;
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
@@ -498,6 +554,21 @@ def ex4(conn):
     ### BEGIN SOLUTION
 
     sql_statement = """
+
+    SELECT r.Region,
+       t.Total
+    FROM Region r
+    JOIN (
+        SELECT co.RegionID,
+            ROUND(SUM(p.ProductUnitPrice * o.QuantityOrdered), 2) AS Total
+        FROM OrderDetail o
+        JOIN Customer c ON o.CustomerID = c.CustomerID
+        JOIN Product p ON o.ProductID = p.ProductID
+        JOIN Country co ON c.CountryID = co.CountryID
+        GROUP BY co.RegionID
+    ) t ON r.RegionID = t.RegionID
+    ORDER BY t.Total DESC;
+
     
     """
     ### END SOLUTION
@@ -515,6 +586,16 @@ def ex5(conn):
     ### BEGIN SOLUTION
 
     sql_statement = """
+
+    SELECT ct.Country, round(sum(p.ProductUnitPrice * o.QuantityOrdered)) as CountryTotal
+    FROM OrderDetail o
+    JOIN Product p ON o.ProductID = p.ProductID
+    JOIN Customer c ON o.CustomerID = c.CustomerID 
+    JOIN Country ct ON c.CountryID = ct.CountryID
+    JOIN Region r ON r.RegionID = ct.RegionID
+    GROUP BY Country
+    ORDER BY CountryTotal DESC
+       
 
     """
     ### END SOLUTION
