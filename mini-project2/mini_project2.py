@@ -492,9 +492,8 @@ def ex1(conn, CustomerName):
         FROM OrderDetail o
         JOIN Customer c ON o.CustomerID = c.CustomerID
         JOIN Product p ON o.ProductID = p.ProductID
-        WHERE c.CustomerID = :customer_id;
+        WHERE name = '{}' """.format(CustomerName)
 
-    """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
     return sql_statement
@@ -511,10 +510,13 @@ def ex2(conn, CustomerName):
     ### BEGIN SOLUTION
     sql_statement = """
     
-    SELECT c.FirstName || "." || c.LastName as Name,round(sum(p.ProductUnitPrice*o.QuantityOrdered),2) as Total from OrderDetail o 
-    JOIN Product p ON o.ProductID=p.ProductID JOIN customer c ON o.CustomerID=c.CustomerID  GROUP BY Name ORDER BY Total desc;
+    SELECT c.FirstName || " " || c.LastName as Name, 
+    ROUND(sum(p.ProductUnitPrice * o.QuantityOrdered),2) as Total 
+    FROM OrderDetail o 
+    JOIN Product p ON o.ProductID = p.ProductID 
+    JOIN customer c ON o.CustomerID = c.CustomerID
+    WHERE name = '{}' GROUP BY name """.format(CustomerName)
 
-    """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
     return sql_statement
@@ -555,8 +557,7 @@ def ex4(conn):
 
     sql_statement = """
 
-    SELECT r.Region,
-       t.Total
+    SELECT r.Region, t.Total
     FROM Region r
     JOIN (
         SELECT co.RegionID,
@@ -587,7 +588,7 @@ def ex5(conn):
 
     sql_statement = """
 
-    SELECT ct.Country, round(sum(p.ProductUnitPrice * o.QuantityOrdered)) as CountryTotal
+    SELECT ct.Country, ROUND(sum(p.ProductUnitPrice * o.QuantityOrdered)) as CountryTotal
     FROM OrderDetail o
     JOIN Product p ON o.ProductID = p.ProductID
     JOIN Customer c ON o.CustomerID = c.CustomerID 
@@ -595,8 +596,6 @@ def ex5(conn):
     JOIN Region r ON r.RegionID = ct.RegionID
     GROUP BY Country
     ORDER BY CountryTotal DESC
-       
-
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
@@ -612,7 +611,16 @@ def ex6(conn):
     ### BEGIN SOLUTION
 
     sql_statement = """
-     
+     SELECT r.Region, ct.Country, round(sum(p.ProductUnitPrice*o.QuantityOrdered)) as CountryTotal, 
+     RANK() OVER (PARTITION BY r.Region ORDER BY SUM(p.ProductUnitPrice * o.QuantityOrdered) DESC) CountryRegionalRank
+     FROM OrderDetail o 
+     JOIN Customer c ON o.CustomerID = c.CustomerID
+     JOIN Product p ON o.ProductID = p.ProductID
+     JOIN Country ct ON c.CountryID = ct.CountryID
+     JOIN Region ON r.RegionID = ct.RegionID
+     GROUP BY r.RegionID, ct.CountryID
+     ORDER BY r.Region, CountryRegionalRank
+    
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
