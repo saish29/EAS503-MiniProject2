@@ -154,19 +154,17 @@
         },
         {
             "name": "test_z_ex6 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 10,
             "max_score": 10,
-            "status": "failed",
-            "output": "Test Failed: Execution failed on sql '\n     SELECT r.Region, ct.Country, round(sum(p.ProductUnitPrice*o.QuantityOrdered)) as CountryTotal, \n     RANK() OVER (PARTITION BY r.Region ORDER BY SUM(p.ProductUnitPrice * o.QuantityOrdered) DESC) CountryRegionalRank\n     FROM OrderDetail o \n     JOIN Customer c ON o.CustomerID = c.CustomerID\n     JOIN Product p ON o.ProductID = p.ProductID\n     JOIN Country ct ON c.CountryID = ct.CountryID\n     JOIN Region ON r.RegionID = ct.RegionID\n     GROUP BY r.RegionID, ct.CountryID\n     ORDER BY r.Region, CountryRegionalRank\n    \n    ': no such column: r.Region\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "z_ex6"
         },
         {
             "name": "test_z_ex7 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 10,
             "max_score": 10,
-            "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "z_ex7"
         },
@@ -209,6 +207,6 @@
     ],
     "leaderboard": [],
     "visibility": "visible",
-    "execution_time": "13.61",
-    "score": 125.0
+    "execution_time": "22.91",
+    "score": 145.0
 }

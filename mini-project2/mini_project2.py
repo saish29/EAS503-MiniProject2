@@ -611,16 +611,15 @@ def ex6(conn):
     ### BEGIN SOLUTION
 
     sql_statement = """
-     SELECT r.Region, ct.Country, round(sum(p.ProductUnitPrice*o.QuantityOrdered)) as CountryTotal, 
-     RANK() OVER (PARTITION BY r.Region ORDER BY SUM(p.ProductUnitPrice * o.QuantityOrdered) DESC) CountryRegionalRank
-     FROM OrderDetail o 
-     JOIN Customer c ON o.CustomerID = c.CustomerID
-     JOIN Product p ON o.ProductID = p.ProductID
-     JOIN Country ct ON c.CountryID = ct.CountryID
-     JOIN Region ON r.RegionID = ct.RegionID
-     GROUP BY r.RegionID, ct.CountryID
-     ORDER BY r.Region, CountryRegionalRank
-    
+     SELECT r.Region, ct.Country, ROUND(SUM(p.ProductUnitPrice * o.QuantityOrdered)) AS CountryTotal,
+        ROW_NUMBER() OVER (PARTITION BY r.Region ORDER BY SUM(p.ProductUnitPrice * o.QuantityOrdered) DESC) CountryRegionalRank
+        From OrderDetail o
+        JOIN Customer c ON o.CustomerID = c.CustomerID
+        JOIN Product p ON o.ProductID = p.ProductID
+        JOIN Country ct ON c.CountryID = ct.CountryID
+        JOIN Region r ON r.RegionID = ct.RegionID
+        GROUP BY Country
+        ORDER BY r.Region ASC, CountryTotal DESC
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
@@ -638,7 +637,21 @@ def ex7(conn):
     ### BEGIN SOLUTION
 
     sql_statement = """
-      
+      WITH country_rank AS (
+        SELECT r.Region, ct.Country, ROUND(SUM(p.ProductUnitPrice * o.QuantityOrdered)) AS CountryTotal,
+        ROW_NUMBER() OVER (PARTITION BY r.Region ORDER BY SUM(p.ProductUnitPrice * o.QuantityOrdered) DESC) CountryRegionalRank
+        From OrderDetail o
+        JOIN Customer c ON o.CustomerID = c.CustomerID
+        JOIN Product p ON o.ProductID = p.ProductID
+        JOIN Country ct ON c.CountryID = ct.CountryID
+        JOIN Region r ON r.RegionID = ct.RegionID
+        GROUP BY Country
+        ORDER BY r.Region ASC, CountryTotal DESC
+      )
+      SELECT Region, Country, CountryTotal, CountryRegionalRank
+      FROM country_rank
+      WHERE CountryRegionalRank = 1
+      ORDER BY Region ASC
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
