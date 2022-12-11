@@ -668,6 +668,20 @@ def ex8(conn):
 
     sql_statement = """
        
+    SELECT
+            CASE
+                WHEN 0 + strftime('%m', o.OrderDate) BETWEEN 1 AND 3 THEN 'Q1'
+                WHEN 0 + strftime('%m', o.OrderDate) BETWEEN 4 AND 6 THEN 'Q2'
+                WHEN 0 + strftime('%m', o.OrderDate) BETWEEN 7 AND 9 THEN 'Q3'
+                WHEN 0 + strftime('%m', o.OrderDate) BETWEEN 10 AND 12 THEN 'Q4'
+            END AS Quarter,
+            CAST(strftime('%Y', o.OrderDate) AS INT) Year, c.CustomerID,
+            ROUND(SUM(p.ProductUnitPrice * o.QuantityOrdered)) AS Total
+        FROM OrderDetail o
+        JOIN Customer c ON c.CustomerID = o.CustomerID
+        JOIN Product p ON p.ProductID = o.ProductID
+        GROUP BY c.CustomerID, Year, Quarter
+        ORDER BY Year, Quarter, c.CustomerID
     """
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
