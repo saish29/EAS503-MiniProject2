@@ -485,8 +485,9 @@ def ex1(conn, CustomerName):
     cdict = step6_create_customer_to_customerid_dictionary('normalized.db')
     
     for k,v in cdict.items():
+        
         if (k == CustomerName):
-            cust_id = v
+            id = v
             break
     
     sql_statement = """
@@ -500,7 +501,7 @@ def ex1(conn, CustomerName):
         FROM OrderDetail o
         JOIN Customer c ON o.CustomerID = c.CustomerID
         JOIN Product p ON o.ProductID = p.ProductID
-        WHERE c.CustomerID = '%s' """ % cust_id
+        WHERE c.CustomerID = '%s' """ % id
 
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
@@ -516,6 +517,17 @@ def ex2(conn, CustomerName):
     # HINT: USE customer_to_customerid_dict to map customer name to customer id and then use where clause with CustomerID
     
     ### BEGIN SOLUTION
+    
+    # Using cust function to create dict
+
+    cdict = step6_create_customer_to_customerid_dictionary('normalized.db')
+    
+    for k,v in cdict.items():
+        
+        if (k == CustomerName):
+            id = v
+            break
+    
     sql_statement = """
     
     SELECT c.FirstName || " " || c.LastName as Name, 
@@ -523,7 +535,7 @@ def ex2(conn, CustomerName):
     FROM OrderDetail o 
     JOIN Product p ON o.ProductID = p.ProductID 
     JOIN customer c ON o.CustomerID = c.CustomerID
-    WHERE name = '{}' GROUP BY name """.format(CustomerName)
+    WHERE c.CustomerID = '%s' GROUP BY name """ % id
 
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
