@@ -791,6 +791,22 @@ def ex11(conn):
     ### BEGIN SOLUTION
 
     sql_statement = """
+
+    WITH orders AS (
+    SELECT c.CustomerID, c.FirstName, c.LastName, ct.Country, o.OrderDate,
+        LAG(o.OrderDate) OVER (PARTITION BY c.CustomerID ORDER BY o.OrderDate) AS PreviousOrderDate
+    FROM OrderDetail o
+    JOIN Product p ON o.ProductID = p.ProductID
+    JOIN Customer c ON o.CustomerID = c.CustomerID
+    JOIN Country ct ON c.CountryID = ct.CountryID
+    JOIN Region r ON r.RegionID = ct.RegionID
+    )
+
+    SELECT CustomerID,FirstName, LastName, Country, OrderDate, PreviousOrderDate,
+        MAX(JULIANDAY(OrderDate) - JULIANDAY(PreviousOrderDate)) AS MaxDaysWithoutOrder
+    FROM orders
+    GROUP BY CustomerID
+    ORDER BY MaxDaysWithoutOrder DESC
      
     """
     ### END SOLUTION

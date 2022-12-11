@@ -194,16 +194,15 @@
         },
         {
             "name": "test_z_ex_11 (test_mini_project2.TestMiniProject2)",
-            "score": 0.0,
+            "score": 10,
             "max_score": 10,
-            "status": "failed",
-            "output": "Test Failed: 'NoneType' object is not iterable\n",
+            "status": "passed",
             "visibility": "visible",
             "number": "z_ex_11"
         }
     ],
     "leaderboard": [],
     "visibility": "visible",
-    "execution_time": "30.71",
-    "score": 175.0
+    "execution_time": "46.66",
+    "score": 185
 }
