@@ -739,6 +739,34 @@ def ex10(conn):
     ### BEGIN SOLUTION
 
     sql_statement = """
+
+    WITH sales_month AS (
+    SELECT
+        CASE
+            WHEN strftime('%m', o.OrderDate) = '01' THEN 'January'
+            WHEN strftime('%m', o.OrderDate) = '02' THEN 'February'
+            WHEN strftime('%m', o.OrderDate) = '03' THEN 'March'
+            WHEN strftime('%m', o.OrderDate) = '04' THEN 'April'
+            WHEN strftime('%m', o.OrderDate) = '05' THEN 'May'
+            WHEN strftime('%m', o.OrderDate) = '06' THEN 'June'
+            WHEN strftime('%m', o.OrderDate) = '07' THEN 'July'
+            WHEN strftime('%m', o.OrderDate) = '08' THEN 'August'
+            WHEN strftime('%m', o.OrderDate) = '09' THEN 'September'
+            WHEN strftime('%m', o.OrderDate) = '10' THEN 'October'
+            WHEN strftime('%m', o.OrderDate) = '11' THEN 'November'
+            WHEN strftime('%m', o.OrderDate) = '12' THEN 'December'
+        END AS Month,
+        SUM(ROUND(p.ProductUnitPrice * o.QuantityOrdered)) AS Total
+    FROM OrderDetail o
+    JOIN Customer c ON c.CustomerID = o.CustomerID
+    JOIN Product p ON p.ProductID = o.ProductID
+    GROUP BY Month
+    )
+
+    SELECT Month, Total,
+    ROW_NUMBER() OVER(ORDER BY total DESC) AS TotalRank
+    FROM sales_month
+    ORDER BY Total DESC
       
     """
     ### END SOLUTION
