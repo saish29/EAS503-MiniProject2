@@ -344,8 +344,6 @@ def step9_create_product_table(data_filename, normalized_database_filename):
         lines = fp.readlines()
     prod_id = 1
     
-    
-    
     i = 1
     temp = []
     final = []
@@ -481,6 +479,16 @@ def ex1(conn, CustomerName):
     # HINT: USE customer_to_customerid_dict to map customer name to customer id and then use where clause with CustomerID
     
     ### BEGIN SOLUTION
+    
+    # Using the cust funtion
+
+    cdict = step6_create_customer_to_customerid_dictionary('normalized.db')
+    
+    for k,v in cdict.items():
+        if (k == CustomerName):
+            cust_id = v
+            break
+    
     sql_statement = """
     
         SELECT c.FirstName || ' ' || c.LastName AS Name,
@@ -492,7 +500,7 @@ def ex1(conn, CustomerName):
         FROM OrderDetail o
         JOIN Customer c ON o.CustomerID = c.CustomerID
         JOIN Product p ON o.ProductID = p.ProductID
-        WHERE name = '{}' """.format(CustomerName)
+        WHERE c.CustomerID = '%s' """ % cust_id
 
     ### END SOLUTION
     df = pd.read_sql_query(sql_statement, conn)
